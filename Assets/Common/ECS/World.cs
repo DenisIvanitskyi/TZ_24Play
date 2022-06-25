@@ -10,8 +10,14 @@ namespace Assets.Common.ECS
         private List<ISystemInit> _systemsInit;
         private List<ISystemUpdate> _systemUpdate;
         private List<ISystemFixedUpdate> _systemsFixedUpdate;
+        private List<ECSSystem> _systems;
 
         public IReadOnlyList<Entity> Entities => _entities;
+
+        public World()
+        {
+            _entities = new List<Entity>();
+        }
 
         public virtual void Init()
         {
@@ -37,12 +43,17 @@ namespace Assets.Common.ECS
                 _systemsFixedUpdate[i].FixedUpdate();
         }
 
-        public virtual TSystem AddSystem<TSystem>(TSystem system)
+        public virtual World AddSystem<TSystem>(TSystem system)
             where TSystem : ECSSystem
         {
             if (system == null) throw new ArgumentNullException(nameof(system));
 
             system.World = this;
+
+            if (_systems == null)
+                _systems = new List<ECSSystem>();
+            _systems.Add(system);
+
             if (system is ISystemInit systemInit)
             {
                 if (_systemsInit == null)
@@ -62,7 +73,21 @@ namespace Assets.Common.ECS
                 _systemsFixedUpdate.Add(systemFixedUpdate);
             }
 
-            return system;
+            return this;
+        }
+
+        public virtual void RemoveSystem<TSystem>()
+            where TSystem : ECSSystem
+        {
+            var systems = _systems.FindAll(e => e is TSystem);
+            foreach (var system in systems)
+            {
+                if (system is IDisposable disposable)
+                    disposable.Dispose();
+                _systemsInit.RemoveAll(e => e is TSystem);
+                _systemUpdate.RemoveAll(e => e is TSystem);
+                _systemsFixedUpdate.RemoveAll(e => e is TSystem);
+            }
         }
 
         public virtual Entity CreateEntity(string name = "")

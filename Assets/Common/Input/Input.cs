@@ -21,13 +21,14 @@ namespace Assets.Common.Input
 
         private void Awake()
         {
-            _inputControls = new InputControls();
+            if (_inputControls == null)
+                _inputControls = new InputControls();
         }
 
         private void Start()
         {
-            _inputControls.Touch.Tap.started += Tap_started;
-            _inputControls.Touch.Tap.canceled += Tap_canceled;
+            _inputControls.Touch.Tap.started += TapStarted;
+            _inputControls.Touch.Tap.canceled += TapEnd;
 
             _inputControls.Touch.PrimaryContact.started += PrimaryContactStarted;
             _inputControls.Touch.PrimaryContact.canceled += PrimaryContactCanceled;
@@ -53,19 +54,19 @@ namespace Assets.Common.Input
 
         private void OnDisabled() => _inputControls?.Disable();
 
-        private void Tap_canceled(InputAction.CallbackContext obj)
+        private void TapEnd(InputAction.CallbackContext obj)
         {
             OnInput?.Invoke(this, new TapInputEventArgs(obj, false));
         }
 
-        private void Tap_started(InputAction.CallbackContext obj)
+        private void TapStarted(InputAction.CallbackContext obj)
         {
             OnInput?.Invoke(this, new TapInputEventArgs(obj, true));
         }
 
         private void DetectSwipe()
         {
-            if(Vector3.Distance(_startPosition, _endPosition) >= minmumDistance && (_endTime - _startTime) <= maximumTime)
+            if (Vector3.Distance(_startPosition, _endPosition) >= minmumDistance && (_endTime - _startTime) <= maximumTime)
             {
                 var direction = _endPosition - _startPosition;
                 var direction2D = new Vector2(direction.x, direction.y).normalized;
@@ -75,7 +76,7 @@ namespace Assets.Common.Input
 
         private void SwipeDirection(Vector2 direction)
         {
-            if(Vector2.Dot(Vector2.up, direction) > directionThreshold)
+            if (Vector2.Dot(Vector2.up, direction) > directionThreshold)
                 OnInput?.Invoke(this, new SwipeInputEventArgs(_startContext, _endContext, SwipeInputEventArgs.SwipeDirection.Up));
             if (Vector2.Dot(Vector2.down, direction) > directionThreshold)
                 OnInput?.Invoke(this, new SwipeInputEventArgs(_startContext, _endContext, SwipeInputEventArgs.SwipeDirection.Down));

@@ -21,6 +21,7 @@ namespace Assets.Common.ECS
         public virtual TComponent AddComponent<TComponent>(TComponent component)
             where TComponent : IComponent
         {
+            _componentns.Add(component);
             return component;
         }
 
