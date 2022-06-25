@@ -76,6 +76,11 @@ namespace Assets.Common.ECS
             return this;
         }
 
+        public void RemoveEntity(Entity entity)
+        {
+            _entities.Remove(entity);
+        }
+
         public virtual void RemoveSystem<TSystem>()
             where TSystem : ECSSystem
         {

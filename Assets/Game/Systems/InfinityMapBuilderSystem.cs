@@ -22,43 +22,62 @@ namespace Assets.Game.Systems
         public void Init()
         {
             _filter = World.Entities.Where(e => e.Components.Any(c => c is HeroMovingComponent));
-            foreach (var entity in _filter)
+            var finalFilter = _filter.ToList();
+            foreach (var entity in finalFilter)
             {
                 var heroMovingComponent = entity.Components.FirstOrDefault(c => c is HeroMovingComponent) as HeroMovingComponent;
                 if (heroMovingComponent != null)
                 {
-                    CreateTrackGround(heroMovingComponent);
+                    CreateTrackGround(heroMovingComponent, true);
                 }
             }
         }
 
         public void Update()
         {
-            foreach(var entity in _filter)
+            var isGameStart = World.Entities.Any(e => e.Components.Any(c => c is GameRunningComponent));
+            if (!isGameStart) return;   
+
+            var finalFilter = _filter.ToList();
+            foreach (var entity in finalFilter)
             {
                 var heroMovingComponent = entity.Components.FirstOrDefault(c => c is HeroMovingComponent) as HeroMovingComponent;
-                if(heroMovingComponent != null)
+                if (heroMovingComponent != null)
                 {
-                    CreateTrackGround(heroMovingComponent);
+                    for (var i = 0; i <= 2; i++)
+                        CreateTrackGround(heroMovingComponent);
                 }
             }
         }
 
-        private void CreateTrackGround(HeroMovingComponent heroMovingComponent)
+        private bool CreateTrackGround(HeroMovingComponent heroMovingComponent, bool isInit = false)
         {
             if (_lastTrackGround == null)
             {
-                _lastTrackGround = _trackGroundFactory.Create();
+                var tuple = _trackGroundFactory.Create();
+                _lastTrackGround = tuple.Item1;
                 _lastTrackGround.transform.position = new Vector3();
             }
 
             var distance = Vector3.Distance(heroMovingComponent.Transform.position, _lastTrackGround.transform.position);
-            if (distance <= 30 * 3)
+            if (distance <= 30)
             {
-                var trackGround = _trackGroundFactory.Create();
-                trackGround.transform.position = _lastTrackGround.transform.position + new Vector3(0, 0, _lastTrackGround.transform.localScale.z);
+                var tuple = _trackGroundFactory.Create();
+                var trackGround = tuple.Item1;
+                var finalPosition = _lastTrackGround.transform.position + new Vector3(0, 0, _lastTrackGround.transform.localScale.z);
+                if (!isInit)
+                {
+                    tuple.Item2.AddComponent(new TrackGroundCreatingAnimationComponent() { SpeedAnimtion = 5f, TargetPositon = finalPosition, TrackGround = trackGround });
+                    trackGround.transform.position = new Vector3(0, -100, finalPosition.z);
+                }
+                else
+                    trackGround.transform.position = finalPosition;
                 _lastTrackGround = trackGround;
+
+                return true;
             }
+
+            return false;
         }
     }
 }

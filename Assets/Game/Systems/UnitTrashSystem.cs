@@ -31,6 +31,7 @@ namespace Assets.Game.Systems
                     if (removableComponent.GameObject.transform.position.z < _heroComponent.Transform.position.z && distance >= 40)
                     {
                         entity.RemoveComponent(removableComponent);
+                        World.RemoveEntity(entity);
                         Object.Destroy(removableComponent.GameObject, 0);
                     }
                 }

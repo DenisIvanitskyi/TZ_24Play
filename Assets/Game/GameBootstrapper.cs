@@ -38,9 +38,9 @@ namespace Assets.Game
                 .AddSystem(new HeroMovingSystem())
                 .AddSystem(new CameraTargetFollowingSystem())
                 .AddSystem(new InfinityMapBuilderSystem(this))
+                .AddSystem(new TruckGroundAnimationSystem())
                 .AddSystem(new UnitTrashSystem());
 
-            CreateTrashEntity();
             CreateSplashScreenEntity();
             var hero = CreatePlayer();
             CreateCamera(Camera.main, hero.transform);
@@ -67,7 +67,7 @@ namespace Assets.Game
         private GameObject CreatePlayer()
         {
             var heroObject = Instantiate(_heroPrefab);
-            heroObject.transform.position = new Vector3(0, 0, 4);
+            heroObject.transform.position = new Vector3(0, 0, 5);
 
             var heroEntity = _gameWorld.CreateEntity();
             heroEntity.AddComponent(new HeroMovingComponent() { Transform = heroObject.transform });
@@ -81,19 +81,13 @@ namespace Assets.Game
             splashEntity.AddComponent(new GameSplashScreenComponent() { StartToGameSplashScreenController = _splashStartGameScreen });
         }
 
-        private void CreateTrashEntity()
-        {
-            _gameWorld.CreateEntity("Trash");
-        }
-
-        public GameObject Create()
+        public (GameObject, Entity) Create()
         {
             var trackGround = Instantiate(_trackGround);
 
-            var worldEntity = _gameWorld.Entities.FirstOrDefault(e => e.Name == "Trash");
-            worldEntity.AddComponent(new RemovableGameObjectComponent() { GameObject = trackGround });
-
-            return trackGround;
+            var trackGroundEntity = _gameWorld.CreateEntity();
+            trackGroundEntity.AddComponent(new RemovableGameObjectComponent() { GameObject = trackGround });
+            return (trackGround, trackGroundEntity);
         }
     }
 }
