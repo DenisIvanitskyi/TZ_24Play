@@ -1,15 +1,14 @@
 ﻿using Assets.Common.ECS;
-using Assets.Common.Input;
 using Assets.Game.Components;
 using Assets.Game.Systems;
+using Assets.Game.TrackGround;
 using Assets.Game.UI;
 using System;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace Assets.Game
 {
-    public class GameBootstrapper : MonoBehaviour
+    public class GameBootstrapper : MonoBehaviour, ITrackGroundFactory
     {
         public static GameManager GameManager { get; private set; }
 
@@ -35,9 +34,11 @@ namespace Assets.Game
             _gameWorld = new World()
                 .AddSystem(new GameStartingSystem(_input))
                 .AddSystem(new HeroInputSystem(_input))
-                .AddSystem(new HeroMovingSystem());
+                .AddSystem(new HeroMovingSystem())
+                .AddSystem(new InfinityMapBuilderSystem(this));
 
             CreateSplashScreenEntity();
+            CreatePlayer();
 
 
             _gameWorld.Init();
@@ -53,16 +54,10 @@ namespace Assets.Game
             _gameWorld?.FixedUpdate();
         }
 
-        private void StartGame()
-        {
-            GameManager.StartSplashScreen.IsVisible = false;
-            Debug.Log("Tap");
-        }
-
         private void CreatePlayer()
         {
             var heroObject = Instantiate(_heroPrefab);
-            heroObject.transform.position = new Vector3(0, 0, 30);
+            heroObject.transform.position = new Vector3(0, 0, 4);
 
             var heroEntity = _gameWorld.CreateEntity();
             heroEntity.AddComponent(new HeroMovingComponent() { Transform = heroObject.transform });
@@ -72,6 +67,12 @@ namespace Assets.Game
         {
             var splashEntity = _gameWorld.CreateEntity();
             splashEntity.AddComponent(new GameSplashScreenComponent() { StartToGameSplashScreenController = _splashStartGameScreen });
+        }
+
+        public GameObject Create()
+        {
+            var trackGround = Instantiate(_trackGround);
+            return trackGround;
         }
     }
 }

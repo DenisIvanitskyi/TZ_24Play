@@ -24,7 +24,7 @@ namespace Assets.Game.Systems
         public void Init()
         {
             _filter = 
-                World.Entities.Where(e => e.Components.Any(c => c is HeroMovingSystem));
+                World.Entities.Where(e => e.Components.Any(c => c is HeroMovingComponent));
         }
 
         public void Update()
@@ -48,37 +48,44 @@ namespace Assets.Game.Systems
         private void Input_OnInput(object sender, InputEventArgs e)
         {
             if (e is SwipeInputEventArgs swipe)
-                _lastSwipe = swipe;
-        }
-
-        private void InputUpdate()
-        {
-            if (_lastSwipe != null)
             {
                 foreach (var entity in _filter)
                 {
                     var heroMovingComponent = entity.Components.FirstOrDefault(e => e is HeroMovingComponent) as HeroMovingComponent;
                     if (heroMovingComponent != null)
                     {
-                        var direction = GetVectorFromSwipe(_lastSwipe);
-                        heroMovingComponent.Direction = direction;
+                        var direction = GetVectorFromSwipe(swipe);
+                        var newPosition = heroMovingComponent.Transform.position + direction;
+                        heroMovingComponent.TargetPosition = newPosition;
                     }
                 }
             }
-
-            _lastSwipe = null;
         }
 
-        private Vector2 GetVectorFromSwipe(SwipeInputEventArgs swipe)
+        private void InputUpdate()
+        {
+            foreach (var entity in _filter)
+            {
+                var heroMovingComponent = entity.Components.FirstOrDefault(e => e is HeroMovingComponent) as HeroMovingComponent;
+                if (heroMovingComponent != null)
+                {
+                    var newPosition
+                        = Vector3.MoveTowards(heroMovingComponent.Transform.position, heroMovingComponent.TargetPosition, Time.fixedDeltaTime * 10);
+                    heroMovingComponent.Transform.position = new Vector3(newPosition.x, heroMovingComponent.Transform.position.y, heroMovingComponent.Transform.position.z);
+                }
+            }
+        }
+
+        private Vector3 GetVectorFromSwipe(SwipeInputEventArgs swipe)
         {
             switch(swipe.Swipe)
             {
                 case SwipeInputEventArgs.SwipeDirection.Left:
-                    return Vector2.left;
+                    return Vector3.left;
                 case SwipeInputEventArgs.SwipeDirection.Right:
-                    return Vector2.right;
+                    return Vector3.right;
                 default:
-                    return Vector2.zero;
+                    return Vector3.zero;
             }    
         }
 

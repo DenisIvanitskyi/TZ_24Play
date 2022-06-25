@@ -7,6 +7,6 @@ namespace Assets.Game.Components
     {
         public Transform Transform { get; set; }
 
-        public Vector3 Direction { get; set; }
+        public Vector3 TargetPosition { get; set; }
     }
 }
