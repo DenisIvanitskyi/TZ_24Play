@@ -1,5 +1,7 @@
 ﻿using Assets.Common.ECS;
+using Assets.Common.Input;
 using Assets.Game.UI;
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -33,7 +35,15 @@ namespace Assets.Game
 
             _gameWorld.Init();
 
-            GameManager.Input.SubscibeOnTap(StartGame);
+            GameManager.Input.OnInput += OnInputHandler;
+        }
+
+        private void OnInputHandler(object sender, InputEventArgs e)
+        {
+            if (e is TapInputEventArgs tap && tap.IsTapEnded)
+                StartGame();
+            else if(e is SwipeInputEventArgs swipe)
+                Debug.LogWarning(swipe.Swipe);
         }
 
         public void Update()
@@ -46,9 +56,8 @@ namespace Assets.Game
             _gameWorld?.FixedUpdate();
         }
 
-        private void StartGame(InputAction.CallbackContext ctx)
+        private void StartGame()
         {
-            GameManager.Input.UnsubscribeTap(StartGame);
             GameManager.StartSplashScreen.IsVisible = false;
             Debug.Log("Tap");
         }
