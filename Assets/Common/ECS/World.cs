@@ -15,18 +15,24 @@ namespace Assets.Common.ECS
 
         public virtual void Init()
         {
+            if (_systemsInit == null) return;
+
             for (var i = 0; i < _systemsInit.Count; i++)
                 _systemsInit[i].Init();
         }
 
         public virtual void Update()
         {
+            if (_systemUpdate == null) return;
+
             for (var i = 0; i < _systemUpdate.Count; i++)
                 _systemUpdate[i].Update();
         }
 
         public virtual void FixedUpdate()
         {
+            if (_systemsFixedUpdate == null) return;
+
             for (var i = 0; i < _systemsFixedUpdate.Count; i++)
                 _systemsFixedUpdate[i].FixedUpdate();
         }
