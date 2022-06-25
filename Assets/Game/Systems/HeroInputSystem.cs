@@ -56,6 +56,7 @@ namespace Assets.Game.Systems
                     {
                         var direction = GetVectorFromSwipe(swipe);
                         var newPosition = heroMovingComponent.Transform.position + direction;
+                        newPosition.Set(Mathf.Clamp(newPosition.x, -2, 2), newPosition.y, newPosition.z);
                         heroMovingComponent.TargetPosition = newPosition;
                     }
                 }

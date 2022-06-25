@@ -4,6 +4,7 @@ using Assets.Game.Systems;
 using Assets.Game.TrackGround;
 using Assets.Game.UI;
 using System;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Game
@@ -35,11 +36,14 @@ namespace Assets.Game
                 .AddSystem(new GameStartingSystem(_input))
                 .AddSystem(new HeroInputSystem(_input))
                 .AddSystem(new HeroMovingSystem())
-                .AddSystem(new InfinityMapBuilderSystem(this));
+                .AddSystem(new CameraTargetFollowingSystem())
+                .AddSystem(new InfinityMapBuilderSystem(this))
+                .AddSystem(new UnitTrashSystem());
 
+            CreateTrashEntity();
             CreateSplashScreenEntity();
-            CreatePlayer();
-
+            var hero = CreatePlayer();
+            CreateCamera(Camera.main, hero.transform);
 
             _gameWorld.Init();
         }
@@ -54,13 +58,21 @@ namespace Assets.Game
             _gameWorld?.FixedUpdate();
         }
 
-        private void CreatePlayer()
+        private void CreateCamera(Camera camera, Transform heroTransform)
+        {
+            var cameraEntity = _gameWorld.CreateEntity(nameof(Camera));
+            cameraEntity.AddComponent(new CameraFollowingComponent() { Target = heroTransform, Camera = camera });
+        }
+
+        private GameObject CreatePlayer()
         {
             var heroObject = Instantiate(_heroPrefab);
             heroObject.transform.position = new Vector3(0, 0, 4);
 
             var heroEntity = _gameWorld.CreateEntity();
             heroEntity.AddComponent(new HeroMovingComponent() { Transform = heroObject.transform });
+
+            return heroObject;
         }
 
         private void CreateSplashScreenEntity()
@@ -69,9 +81,18 @@ namespace Assets.Game
             splashEntity.AddComponent(new GameSplashScreenComponent() { StartToGameSplashScreenController = _splashStartGameScreen });
         }
 
+        private void CreateTrashEntity()
+        {
+            _gameWorld.CreateEntity("Trash");
+        }
+
         public GameObject Create()
         {
             var trackGround = Instantiate(_trackGround);
+
+            var worldEntity = _gameWorld.Entities.FirstOrDefault(e => e.Name == "Trash");
+            worldEntity.AddComponent(new RemovableGameObjectComponent() { GameObject = trackGround });
+
             return trackGround;
         }
     }
