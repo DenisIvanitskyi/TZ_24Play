@@ -252,6 +252,7 @@ GameObject:
   m_Component:
   - component: {fileID: 281105943}
   - component: {fileID: 281105942}
+  - component: {fileID: 281105944}
   m_Layer: 0
   m_Name: '[ === Bootstrapper === ]'
   m_TagString: Untagged
@@ -277,6 +278,7 @@ MonoBehaviour:
   _cubePoint: {fileID: 3481367610352654943, guid: 085ad57d0f0d5924f8ec77fd5eeb27f9, type: 3}
   _collectCubeText: {fileID: 8826951187986414746, guid: e3f3042afd3e879458c1e9b8535296e0, type: 3}
   _splashStartGameScreen: {fileID: 141078012}
+  _input: {fileID: 281105944}
 --- !u!4 &281105943
 Transform:
   m_ObjectHideFlags: 0
@@ -292,6 +294,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &281105944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 281105941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 944813f94ad83dd4a8ca74f084ea0cc3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &362227220
 GameObject:
   m_ObjectHideFlags: 0

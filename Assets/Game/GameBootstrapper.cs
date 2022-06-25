@@ -1,6 +1,7 @@
 ﻿using Assets.Common.ECS;
 using Assets.Game.UI;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Assets.Game
 {
@@ -16,16 +17,23 @@ namespace Assets.Game
         [SerializeField]
         private StartToGameSplashScreen _splashStartGameScreen;
 
+        [Header("Input")]
+        [SerializeField]
+        private Common.Input.Input _input;
+
         private World _gameWorld;
 
         public void Start()
         {
-            GameManager = new GameManager(_splashStartGameScreen);
+            _splashStartGameScreen.IsVisible = true;
+            GameManager = new GameManager(_input, _splashStartGameScreen);
 
             _gameWorld = new World();
 
 
             _gameWorld.Init();
+
+            GameManager.Input.SubscibeOnTap(StartGame);
         }
 
         public void Update()
@@ -36,6 +44,13 @@ namespace Assets.Game
         public void FixedUpdate()
         {
             _gameWorld?.FixedUpdate();
+        }
+
+        private void StartGame(InputAction.CallbackContext ctx)
+        {
+            GameManager.Input.UnsubscribeTap(StartGame);
+            GameManager.StartSplashScreen.IsVisible = false;
+            Debug.Log("Tap");
         }
     }
 }
