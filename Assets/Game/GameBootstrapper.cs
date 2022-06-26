@@ -7,8 +7,6 @@ using Assets.Game.PointCube;
 using Assets.Game.Systems;
 using Assets.Game.TrackGround;
 using Assets.Game.UI;
-using System;
-using System.Linq;
 using UnityEngine;
 
 namespace Assets.Game
@@ -19,7 +17,7 @@ namespace Assets.Game
 
         [Header("Prefabs")]
         [SerializeField]
-        private GameObject _heroPrefab, _trackGround, _cubeWall, _cubePoint, _collectCubeText;
+        private GameObject _heroPrefab, _trackGround, _cubeWall, _cubePoint, _collectCubeText, _wrapEffect, _blowStackingEffect;
 
         [Header("Instances - UI")]
         [SerializeField]
@@ -52,12 +50,13 @@ namespace Assets.Game
             _pointCubeFactory = new CubePointFactory(_gameWorld, _cubePoint, _heroObject.transform);
 
             _gameWorld
-                .AddSystem(new GameStartingSystem(_input))
+                .AddSystem(new GameStartingSystem(_input, _wrapEffect, _heroController.transform))
                 .AddSystem(new HeroInputSystem(_input))
                 .AddSystem(new HeroMovingSystem())
                 .AddSystem(new CameraTargetFollowingSystem())
                 .AddSystem(new InfinityMapBuilderSystem(this, _pointCubeFactory, _cubeWallFactory))
                 .AddSystem(new PointCubeCollisionSystem(_heroController))
+                .AddSystem(new HeroPointCubeWallDetectionSystem(_heroController))
                 .AddSystem(new TruckGroundAnimationSystem())
                 .AddSystem(new UnitTrashSystem());
 
@@ -86,8 +85,17 @@ namespace Assets.Game
             _heroController = _heroObject.GetComponent<HeroController>();
             _heroObject.transform.position = new Vector3(0, 0, 5);
 
+            _heroController.Setup(_gameWorld, _blowStackingEffect);
+
             var heroEntity = _gameWorld.CreateEntity();
             heroEntity.AddComponent(new HeroMovingComponent() { Transform = _heroObject.transform });
+
+            var cubeObject = Instantiate(_cubePoint);
+
+            var cubeEntity = _gameWorld.CreateEntity();
+            cubeEntity.AddComponent(new HeroPointCubeComponent() { PointCube = cubeObject });
+            cubeEntity.AddComponent(new RemovableGameObjectComponent() { GameObject = cubeObject });
+            _heroController.AddToStackCube(cubeObject, false);
         }
 
         private void CreateSplashScreenEntity()

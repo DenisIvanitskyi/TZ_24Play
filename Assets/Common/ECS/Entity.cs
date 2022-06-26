@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Assets.Common.ECS
 {
@@ -27,5 +28,8 @@ namespace Assets.Common.ECS
 
         public virtual void RemoveComponent(IComponent component)
             => _componentns.Remove(component);
+
+        internal void RemoveComponent()
+            => _componentns.Clear();
     }
 }

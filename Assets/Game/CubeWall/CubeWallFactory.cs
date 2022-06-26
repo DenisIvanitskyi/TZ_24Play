@@ -23,6 +23,7 @@ namespace Assets.Game.CubeWall
 
             var targetBlockEntity = _gameWorld.CreateEntity();
             targetBlockEntity.AddComponent(new RemovableGameObjectComponent() { GameObject = cubeWall });
+            targetBlockEntity.AddComponent(new CubeWallComponent() { CubeWall = cubeWall });
             _removableGameObjectComponent?.RelativeEntity?.Add(targetBlockEntity);
 
             return cubeWall;

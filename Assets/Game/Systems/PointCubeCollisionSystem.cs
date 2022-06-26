@@ -30,17 +30,15 @@ namespace Assets.Game.Systems
                 var pointCubeComponent = entity.Components.FirstOrDefault(c => c is PointCubeCollisionComponent) as PointCubeCollisionComponent;
                 if(pointCubeComponent != null)
                 {
-                    var distanceZ = Mathf.Abs(pointCubeComponent.PointCube.transform.position.z - pointCubeComponent.TargeteObject.position.z);
-                    if(distanceZ < 1)
+                    var distance = Vector3.Distance(pointCubeComponent.PointCube.transform.position, pointCubeComponent.TargeteObject.transform.position);
+                    if (distance < 1f)
                     {
-                        var distanceX = Mathf.Abs(pointCubeComponent.PointCube.transform.position.x - pointCubeComponent.TargeteObject.position.x);
-                        if(distanceX < 1f)
-                        {
-                            entity.RemoveComponent(pointCubeComponent);
-                            World.RemoveEntity(entity);
+                        World.RemoveEntity(entity);
 
-                            _stackPointCube.AddToStackCube(pointCubeComponent.PointCube);
-                        }
+                        var newEntity = World.CreateEntity();
+                        newEntity.AddComponent(new HeroPointCubeComponent() { PointCube = pointCubeComponent.PointCube });
+
+                        _stackPointCube.AddToStackCube(pointCubeComponent.PointCube);
                     }
                 }
             }

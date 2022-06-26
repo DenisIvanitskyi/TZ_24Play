@@ -39,7 +39,7 @@ namespace Assets.Game.Systems
                 var heroMovingComponent = entity.Components.FirstOrDefault(c => c is HeroMovingComponent) as HeroMovingComponent;
                 if (heroMovingComponent != null)
                 {
-                    for (var i = 0; i <= 2; i++)
+                    for (var i = 0; i <= 1; i++)
                         CreateTrackGround(heroMovingComponent, true, i >= 1);
                 }
             }
@@ -106,10 +106,10 @@ namespace Assets.Game.Systems
 
         private void GenerateCubeWall(GameObject gameObject, RemovableGameObjectComponent removableGameObjectComponent)
         {
-            var perlineNoise = new PerlinNoise(5, 4, 0, 3);
+            var perlineNoise = new PerlinNoise(5, 3, 0, 3);
             for (var x = 0; x < 5; x++)
             {
-                for (var y = 0; y < 4; y++)
+                for (var y = 0; y < 3; y++)
                 {
                     _cubeWallFactory.SetRemovableComponent(removableGameObjectComponent);
                     var cubeWall = _cubeWallFactory.Create();
