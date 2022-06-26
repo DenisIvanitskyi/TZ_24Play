@@ -30,6 +30,11 @@ namespace Assets.Game.Systems
                     var distance = Vector3.Distance(removableComponent.GameObject.transform.position, _heroComponent.Transform.position);
                     if (removableComponent.GameObject.transform.position.z < _heroComponent.Transform.position.z && distance >= 40)
                     {
+                        foreach(var rEntity in removableComponent.RelativeEntity)
+                        {
+                            World.RemoveEntity(rEntity);
+                        }
+
                         entity.RemoveComponent(removableComponent);
                         World.RemoveEntity(entity);
                         Object.Destroy(removableComponent.GameObject, 0);

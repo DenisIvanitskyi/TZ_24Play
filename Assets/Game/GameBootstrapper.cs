@@ -1,6 +1,7 @@
 ﻿using Assets.Common.ECS;
 using Assets.Common.Factory;
 using Assets.Game.Components;
+using Assets.Game.Hero;
 using Assets.Game.PointCube;
 using Assets.Game.Systems;
 using Assets.Game.TrackGround;
@@ -28,24 +29,30 @@ namespace Assets.Game
         private Common.Input.Input _input;
 
         private World _gameWorld;
+        private GameObject _heroObject;
+        private HeroController _heroController;
+        private RemovableGameObjectComponent _removableGameObjectComponent;
 
         public void Start()
         {
             _splashStartGameScreen.IsVisible = true;
             GameManager = new GameManager(_input, _splashStartGameScreen);
 
-            _gameWorld = new World()
+            _gameWorld = new World();
+
+            CreateSplashScreenEntity();
+            CreatePlayer();
+            CreateCamera(Camera.main, _heroObject.transform);
+
+            _gameWorld
                 .AddSystem(new GameStartingSystem(_input))
                 .AddSystem(new HeroInputSystem(_input))
                 .AddSystem(new HeroMovingSystem())
                 .AddSystem(new CameraTargetFollowingSystem())
                 .AddSystem(new InfinityMapBuilderSystem(this, this))
+                .AddSystem(new PointCubeCollisionSystem(_heroController))
                 .AddSystem(new TruckGroundAnimationSystem())
                 .AddSystem(new UnitTrashSystem());
-
-            CreateSplashScreenEntity();
-            var hero = CreatePlayer();
-            CreateCamera(Camera.main, hero.transform);
 
             _gameWorld.Init();
         }
@@ -66,15 +73,14 @@ namespace Assets.Game
             cameraEntity.AddComponent(new CameraFollowingComponent() { Target = heroTransform, Camera = camera });
         }
 
-        private GameObject CreatePlayer()
+        private void CreatePlayer()
         {
-            var heroObject = Instantiate(_heroPrefab);
-            heroObject.transform.position = new Vector3(0, 0, 5);
+            _heroObject = Instantiate(_heroPrefab);
+            _heroController = _heroObject.GetComponent<HeroController>();
+            _heroObject.transform.position = new Vector3(0, 0, 5);
 
             var heroEntity = _gameWorld.CreateEntity();
-            heroEntity.AddComponent(new HeroMovingComponent() { Transform = heroObject.transform });
-
-            return heroObject;
+            heroEntity.AddComponent(new HeroMovingComponent() { Transform = _heroObject.transform });
         }
 
         private void CreateSplashScreenEntity()
@@ -97,7 +103,16 @@ namespace Assets.Game
             var targetBlock = Instantiate(_cubePoint);
 
             var targetBlockEntity = _gameWorld.CreateEntity();
+            targetBlockEntity.AddComponent(new PointCubeCollisionComponent() { PointCube = targetBlock, TargeteObject = _heroObject.transform });
+            targetBlockEntity.AddComponent(new RemovableGameObjectComponent() { GameObject = targetBlock });
+            _removableGameObjectComponent?.RelativeEntity?.Add(targetBlockEntity);
+
             return targetBlock;
+        }
+
+        public void SetRemovableComponent(RemovableGameObjectComponent removableGameObjectComponent)
+        {
+            _removableGameObjectComponent = removableGameObjectComponent;
         }
     }
 }

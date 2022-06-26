@@ -35,7 +35,7 @@ namespace Assets.Game.Systems
                 if (heroMovingComponent != null)
                 {
                     for (var i = 0; i <= 2; i++)
-                        CreateTrackGround(heroMovingComponent, true);
+                        CreateTrackGround(heroMovingComponent, true, i >= 1);
                 }
             }
         }
@@ -57,7 +57,7 @@ namespace Assets.Game.Systems
             }
         }
 
-        private bool CreateTrackGround(HeroMovingComponent heroMovingComponent, bool isInit = false)
+        private bool CreateTrackGround(HeroMovingComponent heroMovingComponent, bool isInit = false, bool spawnPointCube = true)
         {
             var distance = _nextPosition.z - heroMovingComponent.Transform.position.z;
             if (distance <= 35 || isInit)
@@ -72,19 +72,21 @@ namespace Assets.Game.Systems
                 else
                     trackGround.transform.position = _nextPosition;
 
-                _nextPosition += new Vector3(0, 0, trackGround.transform.localScale.z);
-                GeneratePointBlock(trackGround);
+                if(spawnPointCube)
+                    GeneratePointBlock(trackGround, tuple.Item2.Components.FirstOrDefault(c => c is RemovableGameObjectComponent) as RemovableGameObjectComponent);
 
+                _nextPosition += new Vector3(0, 0, trackGround.transform.localScale.z);
                 return true;
             }
 
             return false;
         }
 
-        private void GeneratePointBlock(GameObject gameObject)
+        private void GeneratePointBlock(GameObject gameObject, RemovableGameObjectComponent removableGameObjectComponent)
         {
             for (var i = 0; i < 3; i++)
             {
+                _pointCubeFactory.SetRemovableComponent(removableGameObjectComponent);
                 var pointBlock = _pointCubeFactory.Create();
                 pointBlock.transform.SetParent(gameObject.transform);
 
