@@ -1,5 +1,7 @@
 ﻿using Assets.Common.ECS;
+using Assets.Common.Factory;
 using Assets.Game.Components;
+using Assets.Game.PointCube;
 using Assets.Game.Systems;
 using Assets.Game.TrackGround;
 using Assets.Game.UI;
@@ -9,7 +11,7 @@ using UnityEngine;
 
 namespace Assets.Game
 {
-    public class GameBootstrapper : MonoBehaviour, ITrackGroundFactory
+    public class GameBootstrapper : MonoBehaviour, ITrackGroundFactory, IPointCubeFactory
     {
         public static GameManager GameManager { get; private set; }
 
@@ -37,7 +39,7 @@ namespace Assets.Game
                 .AddSystem(new HeroInputSystem(_input))
                 .AddSystem(new HeroMovingSystem())
                 .AddSystem(new CameraTargetFollowingSystem())
-                .AddSystem(new InfinityMapBuilderSystem(this))
+                .AddSystem(new InfinityMapBuilderSystem(this, this))
                 .AddSystem(new TruckGroundAnimationSystem())
                 .AddSystem(new UnitTrashSystem());
 
@@ -88,6 +90,14 @@ namespace Assets.Game
             var trackGroundEntity = _gameWorld.CreateEntity();
             trackGroundEntity.AddComponent(new RemovableGameObjectComponent() { GameObject = trackGround });
             return (trackGround, trackGroundEntity);
+        }
+
+        GameObject IFactory<GameObject>.Create()
+        {
+            var targetBlock = Instantiate(_cubePoint);
+
+            var targetBlockEntity = _gameWorld.CreateEntity();
+            return targetBlock;
         }
     }
 }
