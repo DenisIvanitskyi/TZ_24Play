@@ -5,6 +5,10 @@ namespace Assets.Game.Components
 {
     public class TrailComponent : IComponent
     {
-        public TrailRenderer TrailRenderer { get; set; }
+        public GameObject TrailPrefab { get; set; }
+
+        public Vector3 LastPoint { get; set; }
+
+        public Transform HeroTransform { get; internal set; }
     }
 }

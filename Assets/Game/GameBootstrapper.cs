@@ -17,7 +17,7 @@ namespace Assets.Game
 
         [Header("Prefabs")]
         [SerializeField]
-        private GameObject _heroPrefab, _trackGround, _cubeWall, _cubePoint, _collectCubeText, _wrapEffect, _blowStackingEffect;
+        private GameObject _heroPrefab, _trackGround, _cubeWall, _cubePoint, _collectCubeText, _wrapEffect, _blowStackingEffect, _trailEffect;
 
         [Header("Instances - Camera")]
         [SerializeField]
@@ -76,6 +76,7 @@ namespace Assets.Game
                 .AddSystem(new FlyingTextSystem())
                 .AddSystem(new HeroPointCubeWallDetectionSystem(_heroController))
                 .AddSystem(new TruckGroundAnimationSystem())
+                //.AddSystem(new TrailRenderSystem())
                 .AddSystem(new UnitTrashSystem());
 
             _gameWorld.Init();
@@ -128,6 +129,10 @@ namespace Assets.Game
             cubeEntity.AddComponent(new HeroPointCubeComponent() { PointCube = cubeObject });
             cubeEntity.AddComponent(new RemovableGameObjectComponent() { GameObject = cubeObject });
             _heroController.AddToStackCube(cubeObject, false, false);
+
+            var trailGameObjct = Instantiate(_trailEffect);
+            trailGameObjct.transform.SetParent(_heroController.transform);
+            trailGameObjct.transform.position = new Vector3(0, 0.03f, 5);
         }
 
         private void OnGameEnd()

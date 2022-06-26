@@ -279,8 +279,10 @@ MonoBehaviour:
   _collectCubeText: {fileID: 8826951187986414746, guid: e3f3042afd3e879458c1e9b8535296e0, type: 3}
   _wrapEffect: {fileID: 7853053968035830558, guid: a13ee35630b4bc2478b0b170bb3c94ea, type: 3}
   _blowStackingEffect: {fileID: 253324237633408118, guid: b6c0b1506426c6842aef80fad4e5bb5e, type: 3}
+  _trailEffect: {fileID: 2008161483769072670, guid: 633f1b0721d161c4d8f05ed797cd4970, type: 3}
   _uiCamera: {fileID: 502244048}
   _splashStartGameScreen: {fileID: 141078012}
+  _gameEndSplashScreen: {fileID: 1329186148}
   _input: {fileID: 281105944}
 --- !u!4 &281105943
 Transform:
@@ -1182,13 +1184,14 @@ GameObject:
   - component: {fileID: 1329186147}
   - component: {fileID: 1329186146}
   - component: {fileID: 1329186145}
+  - component: {fileID: 1329186148}
   m_Layer: 5
   m_Name: Game_End
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1329186144
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1271,6 +1274,18 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!114 &1329186148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1329186143}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8ea42dcb0651724bb48b720abfc7e51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1400828095
 GameObject:
   m_ObjectHideFlags: 0
@@ -1413,10 +1428,10 @@ RectTransform:
   m_Father: {fileID: 463621891}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 75}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 224.94093, y: -602.2899}
+  m_SizeDelta: {x: 349.88187, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1516425252
 MonoBehaviour:
@@ -1461,7 +1476,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1516425253}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1329186148}
+        m_TargetAssemblyTypeName: Assets.Game.UI.EndGameSplashScreen, Assembly-CSharp
+        m_MethodName: OnTryAgainGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1516425253
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1533,10 +1560,10 @@ RectTransform:
   m_Father: {fileID: 463621891}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 414.78992}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 224.94093, y: -357.39496}
+  m_SizeDelta: {x: 349.88187, y: 414.78992}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1646713513
 MonoBehaviour:
