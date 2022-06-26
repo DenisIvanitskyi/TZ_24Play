@@ -1,6 +1,7 @@
 ﻿using Assets.Common.ECS;
 using Assets.Common.Factory;
 using Assets.Game.Components;
+using Assets.Game.CubeWall;
 using Assets.Game.Hero;
 using Assets.Game.PointCube;
 using Assets.Game.Systems;
@@ -12,7 +13,7 @@ using UnityEngine;
 
 namespace Assets.Game
 {
-    public class GameBootstrapper : MonoBehaviour, ITrackGroundFactory, IPointCubeFactory
+    public class GameBootstrapper : MonoBehaviour, ITrackGroundFactory
     {
         public static GameManager GameManager { get; private set; }
 
@@ -33,6 +34,9 @@ namespace Assets.Game
         private HeroController _heroController;
         private RemovableGameObjectComponent _removableGameObjectComponent;
 
+        private ICubeWallFactory _cubeWallFactory;
+        private IPointCubeFactory _pointCubeFactory;
+
         public void Start()
         {
             _splashStartGameScreen.IsVisible = true;
@@ -44,12 +48,15 @@ namespace Assets.Game
             CreatePlayer();
             CreateCamera(Camera.main, _heroObject.transform);
 
+            _cubeWallFactory = new CubeWallFactory(_gameWorld, _cubeWall);
+            _pointCubeFactory = new CubePointFactory(_gameWorld, _cubePoint, _heroObject.transform);
+
             _gameWorld
                 .AddSystem(new GameStartingSystem(_input))
                 .AddSystem(new HeroInputSystem(_input))
                 .AddSystem(new HeroMovingSystem())
                 .AddSystem(new CameraTargetFollowingSystem())
-                .AddSystem(new InfinityMapBuilderSystem(this, this))
+                .AddSystem(new InfinityMapBuilderSystem(this, _pointCubeFactory, _cubeWallFactory))
                 .AddSystem(new PointCubeCollisionSystem(_heroController))
                 .AddSystem(new TruckGroundAnimationSystem())
                 .AddSystem(new UnitTrashSystem());
@@ -96,18 +103,6 @@ namespace Assets.Game
             var trackGroundEntity = _gameWorld.CreateEntity();
             trackGroundEntity.AddComponent(new RemovableGameObjectComponent() { GameObject = trackGround });
             return (trackGround, trackGroundEntity);
-        }
-
-        GameObject IFactory<GameObject>.Create()
-        {
-            var targetBlock = Instantiate(_cubePoint);
-
-            var targetBlockEntity = _gameWorld.CreateEntity();
-            targetBlockEntity.AddComponent(new PointCubeCollisionComponent() { PointCube = targetBlock, TargeteObject = _heroObject.transform });
-            targetBlockEntity.AddComponent(new RemovableGameObjectComponent() { GameObject = targetBlock });
-            _removableGameObjectComponent?.RelativeEntity?.Add(targetBlockEntity);
-
-            return targetBlock;
         }
 
         public void SetRemovableComponent(RemovableGameObjectComponent removableGameObjectComponent)

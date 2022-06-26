@@ -1,10 +1,13 @@
-﻿using Assets.Common.ECS;
+﻿using Assets.Common.Base;
+using Assets.Common.ECS;
 using Assets.Game.Components;
+using Assets.Game.CubeWall;
 using Assets.Game.PointCube;
 using Assets.Game.TrackGround;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -14,12 +17,14 @@ namespace Assets.Game.Systems
     {
         private readonly ITrackGroundFactory _trackGroundFactory;
         private readonly IPointCubeFactory _pointCubeFactory;
+        private readonly ICubeWallFactory _cubeWallFactory;
 
         private IEnumerable<Entity> _filter;
         private Vector3 _nextPosition;
 
-        public InfinityMapBuilderSystem(ITrackGroundFactory trackGroundFactory, IPointCubeFactory pointCubeFactory)
+        public InfinityMapBuilderSystem(ITrackGroundFactory trackGroundFactory, IPointCubeFactory pointCubeFactory, ICubeWallFactory cubeWallFactory)
         {
+            _cubeWallFactory = cubeWallFactory;
             _trackGroundFactory = trackGroundFactory;
             _pointCubeFactory = pointCubeFactory;
             _nextPosition = new Vector3(0, 0, 0);
@@ -72,8 +77,12 @@ namespace Assets.Game.Systems
                 else
                     trackGround.transform.position = _nextPosition;
 
-                if(spawnPointCube)
-                    GeneratePointBlock(trackGround, tuple.Item2.Components.FirstOrDefault(c => c is RemovableGameObjectComponent) as RemovableGameObjectComponent);
+                var removableGOComponent
+                    = tuple.Item2.Components.FirstOrDefault(c => c is RemovableGameObjectComponent) as RemovableGameObjectComponent;
+                if (spawnPointCube)
+                    GeneratePointBlock(trackGround, removableGOComponent);
+                if (spawnPointCube)
+                    GenerateCubeWall(trackGround, removableGOComponent);
 
                 _nextPosition += new Vector3(0, 0, trackGround.transform.localScale.z);
                 return true;
@@ -92,6 +101,26 @@ namespace Assets.Game.Systems
 
                 var randomPositon = new Vector3((int)Math.Floor((decimal)Random.Range(-2, 3)), gameObject.transform.position.y + .5f, gameObject.transform.position.z + 8 + i * 6);
                 pointBlock.transform.position = randomPositon;
+            }
+        }
+
+        private void GenerateCubeWall(GameObject gameObject, RemovableGameObjectComponent removableGameObjectComponent)
+        {
+            var perlineNoise = new PerlinNoise(5, 4, 0, 3);
+            for (var x = 0; x < 5; x++)
+            {
+                for (var y = 0; y < 4; y++)
+                {
+                    _cubeWallFactory.SetRemovableComponent(removableGameObjectComponent);
+                    var cubeWall = _cubeWallFactory.Create();
+                    cubeWall.transform.SetParent(gameObject.transform);
+
+                    var cubeExist = perlineNoise.NoiseValueAt(x, y) > (float)Random.Range(0.35f, 0.45f);
+                    if (!cubeExist) continue;
+
+                    var randomPositon = new Vector3(gameObject.transform.position.x + x - 2, gameObject.transform.position.y + y, gameObject.transform.position.z + 29);
+                    cubeWall.transform.position = randomPositon;
+                }
             }
         }
     }
