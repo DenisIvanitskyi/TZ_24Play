@@ -19,6 +19,10 @@ namespace Assets.Game
         [SerializeField]
         private GameObject _heroPrefab, _trackGround, _cubeWall, _cubePoint, _collectCubeText, _wrapEffect, _blowStackingEffect;
 
+        [Header("Instances - Camera")]
+        [SerializeField]
+        private Camera _uiCamera;
+
         [Header("Instances - UI")]
         [SerializeField]
         private StartToGameSplashScreen _splashStartGameScreen;
@@ -56,6 +60,7 @@ namespace Assets.Game
                 .AddSystem(new CameraTargetFollowingSystem())
                 .AddSystem(new InfinityMapBuilderSystem(this, _pointCubeFactory, _cubeWallFactory))
                 .AddSystem(new PointCubeCollisionSystem(_heroController))
+                .AddSystem(new FlyingTextSystem())
                 .AddSystem(new HeroPointCubeWallDetectionSystem(_heroController))
                 .AddSystem(new TruckGroundAnimationSystem())
                 .AddSystem(new UnitTrashSystem());
@@ -85,7 +90,7 @@ namespace Assets.Game
             _heroController = _heroObject.GetComponent<HeroController>();
             _heroObject.transform.position = new Vector3(0, 0, 5);
 
-            _heroController.Setup(_gameWorld, _blowStackingEffect);
+            _heroController.Setup(_gameWorld, _blowStackingEffect, _collectCubeText, _uiCamera);
 
             var heroEntity = _gameWorld.CreateEntity();
             heroEntity.AddComponent(new HeroMovingComponent() { Transform = _heroObject.transform });
@@ -95,7 +100,7 @@ namespace Assets.Game
             var cubeEntity = _gameWorld.CreateEntity();
             cubeEntity.AddComponent(new HeroPointCubeComponent() { PointCube = cubeObject });
             cubeEntity.AddComponent(new RemovableGameObjectComponent() { GameObject = cubeObject });
-            _heroController.AddToStackCube(cubeObject, false);
+            _heroController.AddToStackCube(cubeObject, false, false);
         }
 
         private void CreateSplashScreenEntity()

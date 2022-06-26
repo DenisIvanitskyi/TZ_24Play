@@ -18,6 +18,8 @@ namespace Assets.Game.Hero
         private Action _onCubeStackEmpty;
         private World _world;
         private GameObject _blowStackingEffect;
+        private GameObject _textOfAchive;
+        private Camera _uiCamera;
 
         public void Start()
         {
@@ -29,7 +31,7 @@ namespace Assets.Game.Hero
             }
         }
 
-        public void AddToStackCube(GameObject cube, bool withEffect = true)
+        public void AddToStackCube(GameObject cube, bool withEffect = true, bool withAchiveText = true)
         {
             var rigidBody = cube.GetComponent<Rigidbody>();
             rigidBody.isKinematic = true;
@@ -50,6 +52,22 @@ namespace Assets.Game.Hero
 
                 var blowStakingRemoveEntity = _world.CreateEntity();
                 blowStakingRemoveEntity.AddComponent(new RemovableGameObjectComponent() { GameObject = blowStackingEffectGameObject });
+            }
+
+            if (withAchiveText)
+            {
+                var achiveText = Instantiate(_textOfAchive);
+                achiveText.transform.position = newCubePosition - new Vector3(1, 0, 0);
+
+                //var localCanvas = achiveText.GetComponent<Canvas>();
+                //if (localCanvas != null)
+                //{
+                //    localCanvas.worldCamera = _uiCamera;
+                //}
+
+                var achiveTextEntity = _world.CreateEntity();
+                achiveTextEntity.AddComponent(new RemovableGameObjectComponent() { GameObject = achiveText });
+                achiveTextEntity.AddComponent(new AchiveTextComponent() { TargetPosition = achiveText.transform.position + new Vector3(0, 5, 5), Text = achiveText });
             }
 
             rigidBody.isKinematic = false;
@@ -74,10 +92,12 @@ namespace Assets.Game.Hero
                 _onCubeStackEmpty();
         }
 
-        public void Setup(World world, GameObject gameObject)
+        public void Setup(World world, GameObject gameObject, GameObject achivePrefab, Camera uiCamera)
         {
             _world = world;
             _blowStackingEffect = gameObject;
-        } 
+            _textOfAchive = achivePrefab;
+            _uiCamera = uiCamera;
+        }
     }
 }

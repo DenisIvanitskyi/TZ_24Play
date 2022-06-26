@@ -29,7 +29,7 @@ namespace Assets.Game.Systems
                 {
                     var nextPostion = heroMovingComponent.Transform.position + Vector3.forward;
                     var newPosition 
-                        = Vector3.MoveTowards(heroMovingComponent.Transform.position, nextPostion, Time.fixedDeltaTime * 3);
+                        = Vector3.MoveTowards(heroMovingComponent.Transform.position, nextPostion, Time.fixedDeltaTime * 5f);
                     heroMovingComponent.Transform.position = new Vector3(heroMovingComponent.Transform.position.x, heroMovingComponent.Transform.position.y, newPosition.z);
                 }
             }
