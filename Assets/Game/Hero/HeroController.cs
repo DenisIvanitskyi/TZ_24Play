@@ -25,24 +25,20 @@ namespace Assets.Game.Hero
         {
             _player.SetActive(false);
             var rigibBodies = _player.GetComponentsInChildren<Rigidbody>();
-            foreach(var rigidBody in rigibBodies)
+            foreach (var rigidBody in rigibBodies)
             {
-                rigidBody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezePositionX;
+                rigidBody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezePositionX;
             }
         }
 
         public void AddToStackCube(GameObject cube, bool withEffect = true, bool withAchiveText = true)
         {
-            var rigidBody = cube.GetComponent<Rigidbody>();
-            rigidBody.isKinematic = true;
-            rigidBody.useGravity = false;
-
             cube.transform.SetParent(_cubeHolder.transform);
             var newCubePosition =
                 new Vector3(_cubeHolder.transform.position.x, _cubeHolder.transform.position.y + cube.transform.localScale.y * _stack.Count, _cubeHolder.transform.position.z);
-
-            _player.transform.position = new Vector3(newCubePosition.x, newCubePosition.y + cube.transform.localScale.y, newCubePosition.z);
             cube.transform.position = newCubePosition;
+
+            _player.transform.position = new Vector3(newCubePosition.x, Mathf.Round(newCubePosition.y + cube.transform.localScale.y * 3 - 0.5f), newCubePosition.z);         
             _stack.Add(cube);
 
             if (withEffect)
@@ -59,19 +55,10 @@ namespace Assets.Game.Hero
                 var achiveText = Instantiate(_textOfAchive);
                 achiveText.transform.position = newCubePosition - new Vector3(1, 0, 0);
 
-                //var localCanvas = achiveText.GetComponent<Canvas>();
-                //if (localCanvas != null)
-                //{
-                //    localCanvas.worldCamera = _uiCamera;
-                //}
-
                 var achiveTextEntity = _world.CreateEntity();
                 achiveTextEntity.AddComponent(new RemovableGameObjectComponent() { GameObject = achiveText });
                 achiveTextEntity.AddComponent(new AchiveTextComponent() { TargetPosition = achiveText.transform.position + new Vector3(0, 5, 5), Text = achiveText });
             }
-
-            rigidBody.isKinematic = false;
-            rigidBody.useGravity = true;
         }
 
         public void OnCubeStackEmpty(Action action)
