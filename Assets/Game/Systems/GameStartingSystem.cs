@@ -47,6 +47,7 @@ namespace Assets.Game.Systems
                         worldEntity.AddComponent(new GameRunningComponent() { StartTime = DateTime.Now });
 
                         var wrapEffectObject = Object.Instantiate(_wrapEffectPrefab, _heroTransfrom);
+                        wrapEffectObject.name = "WrapEffect";
                         wrapEffectObject.transform.localPosition = new Vector3(0, 0, 100);
                     }
                 }

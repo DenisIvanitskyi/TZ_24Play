@@ -7,6 +7,8 @@ using Assets.Game.PointCube;
 using Assets.Game.Systems;
 using Assets.Game.TrackGround;
 using Assets.Game.UI;
+using System;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.Game
@@ -38,9 +40,11 @@ namespace Assets.Game
 
         private ICubeWallFactory _cubeWallFactory;
         private IPointCubeFactory _pointCubeFactory;
+        private bool _isGameEnd;
 
         public void Start()
         {
+            _isGameEnd = false;
             _splashStartGameScreen.IsVisible = true;
             GameManager = new GameManager(_input, _splashStartGameScreen);
 
@@ -70,11 +74,15 @@ namespace Assets.Game
 
         public void Update()
         {
+            if (_isGameEnd) return;
+
             _gameWorld?.Update();
         }
 
         public void FixedUpdate()
         {
+            if (_isGameEnd) return;
+
             _gameWorld?.FixedUpdate();
         }
 
@@ -91,6 +99,7 @@ namespace Assets.Game
             _heroObject.transform.position = new Vector3(0, 0, 5);
 
             _heroController.Setup(_gameWorld, _blowStackingEffect, _collectCubeText, _uiCamera);
+            _heroController.OnCubeStackEmpty(OnGameEnd);
 
             var heroEntity = _gameWorld.CreateEntity();
             heroEntity.AddComponent(new HeroMovingComponent() { Transform = _heroObject.transform });
@@ -101,6 +110,17 @@ namespace Assets.Game
             cubeEntity.AddComponent(new HeroPointCubeComponent() { PointCube = cubeObject });
             cubeEntity.AddComponent(new RemovableGameObjectComponent() { GameObject = cubeObject });
             _heroController.AddToStackCube(cubeObject, false, false);
+        }
+
+        private void OnGameEnd()
+        {
+            _isGameEnd = true;
+            var wrapEffect = _heroController.transform.Find("WrapEffect");
+            if (wrapEffect != null)
+            {
+                wrapEffect.SetParent(null);
+                Destroy(wrapEffect.gameObject);
+            }    
         }
 
         private void CreateSplashScreenEntity()
