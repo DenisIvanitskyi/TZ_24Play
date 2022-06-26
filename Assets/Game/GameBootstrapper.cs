@@ -1,5 +1,4 @@
 ﻿using Assets.Common.ECS;
-using Assets.Common.Factory;
 using Assets.Game.Components;
 using Assets.Game.CubeWall;
 using Assets.Game.Hero;
@@ -8,7 +7,6 @@ using Assets.Game.Systems;
 using Assets.Game.TrackGround;
 using Assets.Game.UI;
 using System;
-using System.Linq;
 using UnityEngine;
 
 namespace Assets.Game
@@ -29,6 +27,10 @@ namespace Assets.Game
         [SerializeField]
         private StartToGameSplashScreen _splashStartGameScreen;
 
+        [Header("Instances - UI")]
+        [SerializeField]
+        private EndGameSplashScreen _gameEndSplashScreen;
+
         [Header("Input")]
         [SerializeField]
         private Common.Input.Input _input;
@@ -44,9 +46,16 @@ namespace Assets.Game
 
         public void Start()
         {
+            BuildGameWorld();
+        }
+
+        private void BuildGameWorld()
+        {
             _isGameEnd = false;
             _splashStartGameScreen.IsVisible = true;
             GameManager = new GameManager(_input, _splashStartGameScreen);
+
+            _gameEndSplashScreen.OnTryAgaineAction = OnTryGameAgain;
 
             _gameWorld = new World();
 
@@ -70,6 +79,15 @@ namespace Assets.Game
                 .AddSystem(new UnitTrashSystem());
 
             _gameWorld.Init();
+        }
+
+        private void OnTryGameAgain()
+        {
+            _gameEndSplashScreen.gameObject.SetActive(false);
+            Destroy(_heroObject.gameObject);
+            _gameWorld.RemoveSystems();
+
+            BuildGameWorld();
         }
 
         public void Update()
@@ -115,12 +133,14 @@ namespace Assets.Game
         private void OnGameEnd()
         {
             _isGameEnd = true;
+            _gameEndSplashScreen.gameObject.SetActive(true);
             var wrapEffect = _heroController.transform.Find("WrapEffect");
             if (wrapEffect != null)
             {
                 wrapEffect.SetParent(null);
                 Destroy(wrapEffect.gameObject);
-            }    
+            }
+
         }
 
         private void CreateSplashScreenEntity()

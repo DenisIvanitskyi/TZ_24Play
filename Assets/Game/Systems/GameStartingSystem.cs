@@ -32,7 +32,7 @@ namespace Assets.Game.Systems
 
         private void Input_OnInput(object sender, InputEventArgs e)
         {
-            if(e is TapInputEventArgs tap && tap.IsTapEnded)
+            if(e is TapInputEventArgs tap && tap.IsTapStarted)
             {
                 _input.OnInput -= Input_OnInput;
 

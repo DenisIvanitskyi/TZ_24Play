@@ -101,5 +101,13 @@ namespace Assets.Common.ECS
             _entities.Add(entity);
             return entity;
         }
+
+        internal void RemoveSystems()
+        {
+            foreach (var system in _systems)
+                if (system is IDisposable disposable)
+                    disposable.Dispose();
+            _systems.Clear();
+        }
     }
 }

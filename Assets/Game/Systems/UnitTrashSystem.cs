@@ -1,15 +1,36 @@
 ﻿using Assets.Common.ECS;
 using Assets.Game.Components;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 namespace Assets.Game.Systems
 {
-    public class UnitTrashSystem : ECSSystem, ISystemInit, ISystemUpdate
+    public class UnitTrashSystem : ECSSystem, ISystemInit, ISystemUpdate, IDisposable
     {
         private IEnumerable<Entity> _filter;
         private HeroMovingComponent _heroComponent;
+
+        public void Dispose()
+        {
+            var finalFilter = _filter.ToList();
+            foreach (var entity in finalFilter)
+            {
+                var removableComponent = entity.Components.FirstOrDefault(c => c is RemovableGameObjectComponent) as RemovableGameObjectComponent;
+                if (removableComponent != null)
+                {
+                    foreach (var rEntity in removableComponent.RelativeEntity)
+                    {
+                        World.RemoveEntity(rEntity);
+                    }
+
+                    entity.RemoveComponent(removableComponent);
+                    World.RemoveEntity(entity);
+                    GameObject.Destroy(removableComponent.GameObject, 0);
+                }
+            }
+        }
 
         public void Init()
         {
@@ -37,7 +58,7 @@ namespace Assets.Game.Systems
 
                         entity.RemoveComponent(removableComponent);
                         World.RemoveEntity(entity);
-                        Object.Destroy(removableComponent.GameObject, 0);
+                        GameObject.Destroy(removableComponent.GameObject, 0);
                     }
                 }
             }

@@ -39,8 +39,8 @@ namespace Assets.Game.Systems
                 var heroMovingComponent = entity.Components.FirstOrDefault(c => c is HeroMovingComponent) as HeroMovingComponent;
                 if (heroMovingComponent != null)
                 {
-                    for (var i = 0; i <= 1; i++)
-                        CreateTrackGround(heroMovingComponent, true, i >= 1);
+                    CreateTrackGround(heroMovingComponent, true, true);
+                    CreateTrackGround(heroMovingComponent, true, true);
                 }
             }
         }
@@ -111,12 +111,12 @@ namespace Assets.Game.Systems
             {
                 for (var y = 0; y < 3; y++)
                 {
+                    var cubeExist = perlineNoise.NoiseValueAt(x, y) > (float)Random.Range(0.35f, 0.45f);
+                    if (!cubeExist) continue;
+
                     _cubeWallFactory.SetRemovableComponent(removableGameObjectComponent);
                     var cubeWall = _cubeWallFactory.Create();
                     cubeWall.transform.SetParent(gameObject.transform);
-
-                    var cubeExist = perlineNoise.NoiseValueAt(x, y) > (float)Random.Range(0.35f, 0.45f);
-                    if (!cubeExist) continue;
 
                     var randomPositon = new Vector3(gameObject.transform.position.x + x - 2, gameObject.transform.position.y + y, gameObject.transform.position.z + 29);
                     cubeWall.transform.position = randomPositon;
